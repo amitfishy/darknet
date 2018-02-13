@@ -16,6 +16,7 @@ image ipl_to_image(IplImage* src);
 void ipl_into_image(IplImage* src, image im);
 void flush_stream_buffer(CvCapture *cap, int n);
 void show_image_cv(image p, const char *name, IplImage *disp);
+void convert_image_to_IplImage(image p, IplImage* disp);
 #endif
 #endif
 
@@ -61,6 +62,7 @@ image make_empty_image(int w, int h, int c);
 void copy_image_into(image src, image dest);
 
 image get_image_layer(image m, int l);
+
 
 #endif
 

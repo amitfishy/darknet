@@ -1,11 +1,11 @@
 #include "darknet.h"
 
-char *voc_names[] = {"aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"};
+char *voc_names[] = {"car"};
 
 void train_yolo(char *cfgfile, char *weightfile)
 {
-    char *train_images = "/data/voc/train.txt";
-    char *backup_directory = "/home/pjreddie/backup/";
+    char *train_images = "/home/amitsinha/data/PASCAL-VOC-CUSTOM-KITTI/VOC2012-CUSTOM-KITTI/JPEGImages";
+    char *backup_directory = "/home/amitsinha/libraries/implementations/darknet/backup";
     srand(time(0));
     char *base = basecfg(cfgfile);
     printf("%s\n", base);
@@ -75,7 +75,8 @@ void train_yolo(char *cfgfile, char *weightfile)
 }
 
 void print_yolo_detections(FILE **fps, char *id, box *boxes, float **probs, int total, int classes, int w, int h)
-{
+{   
+    //printf("Total:%d\n", total);
     int i, j;
     for(i = 0; i < total; ++i){
         float xmin = boxes[i].x - boxes[i].w/2.;
@@ -102,9 +103,9 @@ void validate_yolo(char *cfg, char *weights)
     fprintf(stderr, "Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate, net->momentum, net->decay);
     srand(time(0));
 
-    char *base = "results/comp4_det_test_";
+    char *base = "/home/amitsinha/data/PASCAL-VOC-CUSTOM-KITTI/VOC2012-CUSTOM-KITTI/results/YOLO/comp4_det_test_";
     //list *plist = get_paths("data/voc.2007.test");
-    list *plist = get_paths("/home/pjreddie/data/voc/2007_test.txt");
+    list *plist = get_paths("/home/amitsinha/data/PASCAL-VOC-CUSTOM-KITTI/VOC2012-CUSTOM-KITTI/darknet-format-ImageSets/val.txt");
     //list *plist = get_paths("data/voc.2012.test");
     char **paths = (char **)list_to_array(plist);
 
@@ -187,8 +188,8 @@ void validate_yolo_recall(char *cfg, char *weights)
     fprintf(stderr, "Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate, net->momentum, net->decay);
     srand(time(0));
 
-    char *base = "results/comp4_det_test_";
-    list *plist = get_paths("data/voc.2007.test");
+    char *base = "/home/amitsinha/data/PASCAL-VOC-CUSTOM-KITTI/VOC2012-CUSTOM-KITTI/results/YOLO/comp4_det_test_";
+    list *plist = get_paths("/home/amitsinha/data/PASCAL-VOC-CUSTOM-KITTI/VOC2012-CUSTOM-KITTI/darknet-format-ImageSets/val.txt");
     char **paths = (char **)list_to_array(plist);
 
     layer l = net->layers[net->n-1];

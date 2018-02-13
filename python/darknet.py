@@ -1,16 +1,16 @@
 from ctypes import *
-import math
-import random
+# import math
+# import random
 
-def sample(probs):
-    s = sum(probs)
-    probs = [a/s for a in probs]
-    r = random.uniform(0, 1)
-    for i in range(len(probs)):
-        r = r - probs[i]
-        if r <= 0:
-            return i
-    return len(probs)-1
+# def sample(probs):
+#     s = sum(probs)
+#     probs = [a/s for a in probs]
+#     r = random.uniform(0, 1)
+#     for i in range(len(probs)):
+#         r = r - probs[i]
+#         if r <= 0:
+#             return i
+#     return len(probs)-1
 
 def c_array(ctype, values):
     arr = (ctype*len(values))()
@@ -36,7 +36,7 @@ class METADATA(Structure):
     
 
 #lib = CDLL("/home/pjreddie/documents/darknet/libdarknet.so", RTLD_GLOBAL)
-lib = CDLL("libdarknet.so", RTLD_GLOBAL)
+lib = CDLL("/home/amitsinha/code/USB-gitrepos/deep-objdetect/dl_algos/darknet/libdarknet.so", RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
 lib.network_height.argtypes = [c_void_p]
@@ -103,39 +103,45 @@ predict_image.restype = POINTER(c_float)
 network_detect = lib.network_detect
 network_detect.argtypes = [c_void_p, IMAGE, c_float, c_float, c_float, POINTER(BOX), POINTER(POINTER(c_float))]
 
-def classify(net, meta, im):
-    out = predict_image(net, im)
-    res = []
-    for i in range(meta.classes):
-        res.append((meta.names[i], out[i]))
-    res = sorted(res, key=lambda x: -x[1])
-    return res
+# def classify(net, meta, im):
+#     out = predict_image(net, im)
+#     res = []
+#     for i in range(meta.classes):
+#         res.append((meta.names[i], out[i]))
+#     res = sorted(res, key=lambda x: -x[1])
+#     return res
 
-def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45):
-    im = load_image(image, 0, 0)
-    boxes = make_boxes(net)
-    probs = make_probs(net)
-    num =   num_boxes(net)
-    network_detect(net, im, thresh, hier_thresh, nms, boxes, probs)
-    res = []
-    for j in range(num):
-        for i in range(meta.classes):
-            if probs[j][i] > 0:
-                res.append((meta.names[i], probs[j][i], (boxes[j].x, boxes[j].y, boxes[j].w, boxes[j].h)))
-    res = sorted(res, key=lambda x: -x[1])
-    free_image(im)
-    free_ptrs(cast(probs, POINTER(c_void_p)), num)
-    return res
+
     
 if __name__ == "__main__":
+    def detect(net, meta, image, thresh=.24, hier_thresh=.5, nms=.45):
+        im = load_image(image, 0, 0)
+        boxes = make_boxes(net)
+        probs = make_probs(net)
+        num =   num_boxes(net)
+        network_detect(net, im, thresh, hier_thresh, nms, boxes, probs)
+        res = []
+        for j in range(num):
+            for i in range(meta.classes):
+                if probs[j][i] > 0:
+                    res.append((meta.names[i], probs[j][i], (boxes[j].x, boxes[j].y, boxes[j].w, boxes[j].h)))
+        res = sorted(res, key=lambda x: -x[1])
+        free_image(im)
+        free_ptrs(cast(probs, POINTER(c_void_p)), num)
+        return res
     #net = load_net("cfg/densenet201.cfg", "/home/pjreddie/trained/densenet201.weights", 0)
     #im = load_image("data/wolf.jpg", 0, 0)
     #meta = load_meta("cfg/imagenet1k.data")
     #r = classify(net, meta, im)
     #print r[:10]
-    net = load_net("cfg/tiny-yolo.cfg", "tiny-yolo.weights", 0)
-    meta = load_meta("cfg/coco.data")
-    r = detect(net, meta, "data/dog.jpg")
+    # net = load_net("cfg/tiny-yolo.cfg", "tiny-yolo.weights", 0)
+    # meta = load_meta("cfg/coco.data")
+    # r = detect(net, meta, "data/dog.jpg")
+    net = load_net("/home/amitsinha/code/USB-gitrepos/deep-objdetect/dl_algos/darknet/cfg/yolo.cfg", "/home/amitsinha/code/USB-gitrepos/deep-objdetect/dl_algos/darknet/yolo.weights", 0)
+    meta = load_meta("../cfg/coco.data")
+    r = detect(net, meta, "/home/amitsinha/code/USB-gitrepos/deep-objdetect/dl_algos/darknet/data/dog.jpg")
+
+
     print r
     
 
